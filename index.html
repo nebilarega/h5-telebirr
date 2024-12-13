@@ -160,6 +160,8 @@
       const readerDiv = document.getElementById("reader");
       const loadingDiv = document.getElementById("loading");
 
+      const BASE_URL = "https://620f-196-190-61-74.ngrok-free.app";
+
       function onScanSuccess(decodedText) {
         if (/^\d{10}$/.test(decodedText)) {
           resultDiv.textContent = "Scanned Bike Id: " + decodedText;
@@ -179,7 +181,7 @@
 
           headers.append("GET", "POST", "OPTIONS");
 
-          fetch("https://1275-196-190-61-74.ngrok-free.app/checkBikeId", {
+          fetch(BASE_URL + "/checkBikeId", {
             method: "POST",
             headers: headers,
             body: JSON.stringify({ bikeId: decodedText }),
