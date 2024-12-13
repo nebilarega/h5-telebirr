@@ -39,8 +39,6 @@
       }
 
       button {
-        background-color: #28a745;
-        color: white;
         padding: 12px 20px;
         font-size: 1.2em;
         border: none;
@@ -51,8 +49,22 @@
         transition: background-color 0.3s ease;
       }
 
-      button:hover {
+      #unlockBtn {
+        background-color: #28a745;
+        color: white;
+      }
+
+      #unlockBtn:hover {
         background-color: #218838;
+      }
+
+      #lockBtn {
+        background-color: #dc3545;
+        color: white;
+      }
+
+      #lockBtn:hover {
+        background-color: #c82333;
       }
 
       button:disabled {
@@ -85,12 +97,20 @@
         margin: 20px 0;
         color: #555;
       }
+
+      .unlocked {
+        color: #28a745;
+      }
+
+      .locked {
+        color: #dc3545;
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <h1>Telebirr Electric Bike</h1>
-      <div id="status" class="status">Status: Locked</div>
+      <div id="status" class="status locked">Status: Locked</div>
       <button id="unlockBtn">Unlock Bike</button>
       <button id="lockBtn" style="display: none">Lock Bike</button>
       <div id="spinner"></div>
@@ -131,14 +151,21 @@
                 clearInterval(pollingInterval);
                 spinner.style.display = "none";
 
+                // Update UI based on the bike status
                 if (expectedStatus === "unlocked") {
                   statusDiv.textContent = "Status: Unlocked";
+                  statusDiv.classList.remove("locked");
+                  statusDiv.classList.add("unlocked");
                   unlockBtn.style.display = "none";
                   lockBtn.style.display = "block";
+                  lockBtn.disabled = false; // Enable lock button
                 } else if (expectedStatus === "locked") {
                   statusDiv.textContent = "Status: Locked";
+                  statusDiv.classList.remove("unlocked");
+                  statusDiv.classList.add("locked");
                   lockBtn.style.display = "none";
                   unlockBtn.style.display = "block";
+                  unlockBtn.disabled = false; // Enable unlock button
                 }
               }
             })
@@ -152,6 +179,7 @@
 
       // Unlock button event
       unlockBtn.addEventListener("click", () => {
+        unlockBtn.disabled = true; // Disable unlock button
         spinner.style.display = "block";
         statusDiv.textContent = "Status: Unlocking...";
         fetch("https://1275-196-190-61-74.ngrok-free.app/send-clr0", {
@@ -167,11 +195,13 @@
             console.error("Error unlocking bike:", err);
             spinner.style.display = "none";
             statusDiv.textContent = "Error unlocking bike.";
+            unlockBtn.disabled = false; // Enable unlock button in case of error
           });
       });
 
       // Lock button event
       lockBtn.addEventListener("click", () => {
+        lockBtn.disabled = true; // Disable lock button
         spinner.style.display = "block";
         statusDiv.textContent = "Status: Locking...";
         fetch("https://1275-196-190-61-74.ngrok-free.app/send-clr1", {
@@ -187,6 +217,7 @@
             console.error("Error locking bike:", err);
             spinner.style.display = "none";
             statusDiv.textContent = "Error locking bike.";
+            lockBtn.disabled = false; // Enable lock button in case of error
           });
       });
     </script>
