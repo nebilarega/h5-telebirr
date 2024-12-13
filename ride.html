@@ -61,6 +61,7 @@
       #lockBtn {
         background-color: #dc3545;
         color: white;
+        display: none; /* Hidden by default, shown after unlocking */
       }
 
       #lockBtn:hover {
@@ -70,6 +71,33 @@
       button:disabled {
         background-color: #6c757d;
         cursor: not-allowed;
+      }
+
+      .radio-buttons {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+
+      .radio-buttons button {
+        margin: 0 10px;
+        background-color: #007bff;
+        color: white;
+        border-radius: 8px;
+        padding: 12px 20px;
+        cursor: pointer;
+      }
+
+      .radio-buttons button.selected {
+        border: 3px solid #ffc107; /* Highlight the selected button */
+        background-color: #0056b3; /* Darker shade for selected button */
+      }
+
+      .price-label {
+        font-size: 1.2em;
+        margin: 10px 0;
+        font-weight: bold;
+        color: #555;
       }
 
       #spinner {
@@ -105,15 +133,37 @@
       .locked {
         color: #dc3545;
       }
+
+      .timer {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #007bff;
+        margin-top: 20px;
+      }
+
+      #bikeImage {
+        display: none;
+        width: 100%;
+        aspect-ratio: 1/1;
+        margin-bottom: 10px;
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <h1>Telebirr Electric Bike</h1>
+      <div class="radio-buttons" id="timeButtons">
+        <button id="btn10min" onclick="selectDuration(10)">10 Min</button>
+        <button id="btn15min" onclick="selectDuration(15)">15 Min</button>
+        <button id="btn20min" onclick="selectDuration(20)">20 Min</button>
+      </div>
+      <div id="price" class="price-label">Price: $0</div>
       <div id="status" class="status locked">Status: Locked</div>
-      <button id="unlockBtn">Unlock Bike</button>
-      <button id="lockBtn" style="display: none">Lock Bike</button>
+      <button id="unlockBtn" disabled>Unlock Bike</button>
       <div id="spinner"></div>
+      <div id="timer" class="timer" style="display: none"></div>
+      <img id="bikeImage" src="bicycleRiding.gif" alt="Bike Image" />
+      <button id="lockBtn" onclick="lockBike()">Lock Bike</button>
     </div>
 
     <script>
@@ -121,12 +171,16 @@
       const lockBtn = document.getElementById("lockBtn");
       const statusDiv = document.getElementById("status");
       const spinner = document.getElementById("spinner");
+      const priceDiv = document.getElementById("price");
       const imei = "867255075759094";
+      const timeButtons = document.getElementById("timeButtons");
+      const timerDiv = document.getElementById("timer");
+      const bikeImage = document.getElementById("bikeImage");
       let pollingInterval;
 
       // API endpoint to check bike status
-      const CHECK_STATUS_URL =
-        "https://1275-196-190-61-74.ngrok-free.app/getBikeStatus";
+      const BASE_URL = "https://620f-196-190-61-74.ngrok-free.app";
+      const CHECK_STATUS_URL = BASE_URL + "/getBikeStatus";
 
       let headers = new Headers();
 
@@ -138,10 +192,20 @@
 
       headers.append("GET", "POST", "OPTIONS");
 
+      // Prices based on selected duration
+      const prices = {
+        10: 5,
+        15: 7,
+        20: 10,
+      };
+
+      let selectedDuration = null;
+      let timerInterval;
+
       // Function to simulate polling the API
       function pollBikeStatus(expectedStatus) {
         pollingInterval = setInterval(() => {
-          fetch("https://1275-196-190-61-74.ngrok-free.app/getBikeStatus", {
+          fetch(BASE_URL + "/getBikeStatus", {
             method: "POST",
             headers: headers,
           })
@@ -159,6 +223,14 @@
                   unlockBtn.style.display = "none";
                   lockBtn.style.display = "block";
                   lockBtn.disabled = false; // Enable lock button
+
+                  // Hide time buttons and show timer
+                  timeButtons.style.display = "none";
+                  timerDiv.style.display = "block";
+                  bikeImage.style.display = "block"; // Show bike image
+
+                  // Start countdown timer
+                  startTimer();
                 } else if (expectedStatus === "locked") {
                   statusDiv.textContent = "Status: Locked";
                   statusDiv.classList.remove("unlocked");
@@ -166,6 +238,11 @@
                   lockBtn.style.display = "none";
                   unlockBtn.style.display = "block";
                   unlockBtn.disabled = false; // Enable unlock button
+
+                  // Show time buttons and hide timer
+                  timeButtons.style.display = "flex";
+                  timerDiv.style.display = "none";
+                  bikeImage.style.display = "none"; // Hide bike image
                 }
               }
             })
@@ -182,7 +259,7 @@
         unlockBtn.disabled = true; // Disable unlock button
         spinner.style.display = "block";
         statusDiv.textContent = "Status: Unlocking...";
-        fetch("https://1275-196-190-61-74.ngrok-free.app/send-clr0", {
+        fetch(BASE_URL + "/send-clr0", {
           method: "POST",
           headers: headers,
           body: JSON.stringify({ imei }),
@@ -200,11 +277,11 @@
       });
 
       // Lock button event
-      lockBtn.addEventListener("click", () => {
+      function lockBike() {
         lockBtn.disabled = true; // Disable lock button
         spinner.style.display = "block";
         statusDiv.textContent = "Status: Locking...";
-        fetch("https://1275-196-190-61-74.ngrok-free.app/send-clr1", {
+        fetch(BASE_URL + "/send-clr1", {
           method: "POST",
           headers: headers,
           body: JSON.stringify({ imei }),
@@ -219,7 +296,39 @@
             statusDiv.textContent = "Error locking bike.";
             lockBtn.disabled = false; // Enable lock button in case of error
           });
-      });
+      }
+
+      // Select Duration for unlocking
+      function selectDuration(duration) {
+        selectedDuration = duration;
+        priceDiv.textContent = `Price: $${prices[duration]}`;
+
+        // Apply a border to the selected button
+        const buttons = document.querySelectorAll(".radio-buttons button");
+        buttons.forEach((button) => {
+          button.classList.remove("selected"); // Remove from other buttons
+        });
+        document.getElementById(`btn${duration}min`).classList.add("selected"); // Add border to selected
+
+        unlockBtn.disabled = false; // Enable unlock button when duration is selected
+      }
+
+      // Timer countdown
+      function startTimer() {
+        let remainingTime = selectedDuration * 60; // in seconds
+        timerInterval = setInterval(() => {
+          if (remainingTime <= 0) {
+            clearInterval(timerInterval);
+            timerDiv.textContent = "Time's up!";
+            lockBtn.disabled = true; // Disable lock button when time is up
+          } else {
+            let minutes = Math.floor(remainingTime / 60);
+            let seconds = remainingTime % 60;
+            timerDiv.textContent = `Timer: ${minutes}m ${seconds}s`;
+            remainingTime--;
+          }
+        }, 1000);
+      }
     </script>
   </body>
 </html>

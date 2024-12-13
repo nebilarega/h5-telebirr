@@ -162,7 +162,7 @@
 
       function onScanSuccess(decodedText) {
         if (/^\d{10}$/.test(decodedText)) {
-          resultDiv.textContent = "Scanned Number: " + decodedText;
+          resultDiv.textContent = "Scanned Bike Id: " + decodedText;
           resultDiv.style.display = "block";
           errorDiv.style.display = "none";
           loadingDiv.style.display = "block"; // Show loading indicator
