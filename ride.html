@@ -11,6 +11,12 @@
         box-sizing: border-box;
       }
 
+      @font-face {
+        font-family: "Montserrat" "Gothic Medium", "Arial Narrow", Arial,
+          sans-serif;
+        src: url();
+      }
+
       body {
         font-family: Arial, sans-serif;
         background-color: #f4f4f4;
@@ -35,7 +41,7 @@
       h1 {
         margin-bottom: 20px;
         font-size: 1.8em;
-        color: #007bff;
+        color: #7dc11f;
       }
 
       button {
@@ -157,7 +163,7 @@
         <button id="btn15min" onclick="selectDuration(15)">15 Min</button>
         <button id="btn20min" onclick="selectDuration(20)">20 Min</button>
       </div>
-      <div id="price" class="price-label">Price: $0</div>
+      <div id="price" class="price-label">Price: Check</div>
       <div id="status" class="status locked">Status: Locked</div>
       <button id="unlockBtn" disabled>Unlock Bike</button>
       <div id="spinner"></div>
