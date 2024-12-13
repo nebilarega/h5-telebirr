@@ -167,12 +167,15 @@
     </div>
 
     <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const imei = urlParams.get("imei");
+      const bikeId = urlParams.get("bikeId");
+
       const unlockBtn = document.getElementById("unlockBtn");
       const lockBtn = document.getElementById("lockBtn");
       const statusDiv = document.getElementById("status");
       const spinner = document.getElementById("spinner");
       const priceDiv = document.getElementById("price");
-      const imei = "867255075759094";
       const timeButtons = document.getElementById("timeButtons");
       const timerDiv = document.getElementById("timer");
       const bikeImage = document.getElementById("bikeImage");
@@ -194,9 +197,9 @@
 
       // Prices based on selected duration
       const prices = {
-        10: 5,
-        15: 7,
-        20: 10,
+        10: 100,
+        15: 150,
+        20: 200,
       };
 
       let selectedDuration = null;
@@ -301,7 +304,7 @@
       // Select Duration for unlocking
       function selectDuration(duration) {
         selectedDuration = duration;
-        priceDiv.textContent = `Price: $${prices[duration]}`;
+        priceDiv.textContent = `Price: ${prices[duration]} Birr`;
 
         // Apply a border to the selected button
         const buttons = document.querySelectorAll(".radio-buttons button");
