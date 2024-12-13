@@ -180,20 +180,17 @@
       const timerDiv = document.getElementById("timer");
       const bikeImage = document.getElementById("bikeImage");
       let pollingInterval;
+      let timerInterval;
 
-      // API endpoint to check bike status
+      // API endpoints
       const BASE_URL = "https://620f-196-190-61-74.ngrok-free.app";
       const CHECK_STATUS_URL = BASE_URL + "/getBikeStatus";
 
       let headers = new Headers();
-
       headers.append("Content-Type", "application/json");
       headers.append("Accept", "application/json");
-
       headers.append("Access-Control-Allow-Origin", "*");
       headers.append("Access-Control-Allow-Credentials", "true");
-
-      headers.append("GET", "POST", "OPTIONS");
 
       // Prices based on selected duration
       const prices = {
@@ -203,7 +200,6 @@
       };
 
       let selectedDuration = null;
-      let timerInterval;
 
       // Function to simulate polling the API
       function pollBikeStatus(expectedStatus) {
@@ -218,34 +214,33 @@
                 clearInterval(pollingInterval);
                 spinner.style.display = "none";
 
-                // Update UI based on the bike status
                 if (expectedStatus === "unlocked") {
                   statusDiv.textContent = "Status: Unlocked";
                   statusDiv.classList.remove("locked");
                   statusDiv.classList.add("unlocked");
                   unlockBtn.style.display = "none";
                   lockBtn.style.display = "block";
-                  lockBtn.disabled = false; // Enable lock button
+                  lockBtn.disabled = false;
 
                   // Hide time buttons and show timer
                   timeButtons.style.display = "none";
                   timerDiv.style.display = "block";
-                  bikeImage.style.display = "block"; // Show bike image
+                  bikeImage.style.display = "block";
 
-                  // Start countdown timer
-                  startTimer();
+                  startTimer(); // Start the countdown timer
                 } else if (expectedStatus === "locked") {
                   statusDiv.textContent = "Status: Locked";
                   statusDiv.classList.remove("unlocked");
                   statusDiv.classList.add("locked");
                   lockBtn.style.display = "none";
                   unlockBtn.style.display = "block";
-                  unlockBtn.disabled = false; // Enable unlock button
+                  unlockBtn.disabled = false;
 
                   // Show time buttons and hide timer
                   timeButtons.style.display = "flex";
                   timerDiv.style.display = "none";
-                  bikeImage.style.display = "none"; // Hide bike image
+                  bikeImage.style.display = "none";
+                  resetTimer(); // Reset the timer when the bike is locked
                 }
               }
             })
@@ -259,7 +254,7 @@
 
       // Unlock button event
       unlockBtn.addEventListener("click", () => {
-        unlockBtn.disabled = true; // Disable unlock button
+        unlockBtn.disabled = true;
         spinner.style.display = "block";
         statusDiv.textContent = "Status: Unlocking...";
         fetch(BASE_URL + "/send-clr0", {
@@ -275,13 +270,13 @@
             console.error("Error unlocking bike:", err);
             spinner.style.display = "none";
             statusDiv.textContent = "Error unlocking bike.";
-            unlockBtn.disabled = false; // Enable unlock button in case of error
+            unlockBtn.disabled = false;
           });
       });
 
       // Lock button event
       function lockBike() {
-        lockBtn.disabled = true; // Disable lock button
+        lockBtn.disabled = true;
         spinner.style.display = "block";
         statusDiv.textContent = "Status: Locking...";
         fetch(BASE_URL + "/send-clr1", {
@@ -297,7 +292,7 @@
             console.error("Error locking bike:", err);
             spinner.style.display = "none";
             statusDiv.textContent = "Error locking bike.";
-            lockBtn.disabled = false; // Enable lock button in case of error
+            lockBtn.disabled = false;
           });
       }
 
@@ -331,6 +326,21 @@
             remainingTime--;
           }
         }, 1000);
+      }
+
+      // Reset Timer and UI
+      function resetTimer() {
+        clearInterval(timerInterval);
+        timerDiv.style.display = "none";
+        bikeImage.style.display = "none";
+        timeButtons.style.display = "flex"; // Show time buttons again
+        priceDiv.textContent = "Price: 0 Birr";
+        unlockBtn.disabled = true;
+        selectedDuration = null;
+        const buttons = document.querySelectorAll(".radio-buttons button");
+        buttons.forEach((button) => {
+          button.classList.remove("selected");
+        });
       }
     </script>
   </body>
