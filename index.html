@@ -166,14 +166,24 @@
           resultDiv.style.display = "block";
           errorDiv.style.display = "none";
           loadingDiv.style.display = "block"; // Show loading indicator
+
           stopScanner();
 
-          fetch("https://rnqlh-196-190-61-74.a.free.pinggy.link/checkBikeId", {
+          let headers = new Headers();
+
+          headers.append("Content-Type", "application/json");
+          headers.append("Accept", "application/json");
+
+          headers.append("Access-Control-Allow-Origin", "*");
+          headers.append("Access-Control-Allow-Credentials", "true");
+
+          headers.append("GET", "POST", "OPTIONS");
+
+          fetch("https://rntqn-196-190-61-74.a.free.pinggy.link/checkBikeId", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: headers,
             body: JSON.stringify({ bikeId: decodedText }),
+            mode: "cors",
           })
             .then((response) => {
               loadingDiv.style.display = "none"; // Hide loading indicator
