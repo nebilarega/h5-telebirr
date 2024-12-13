@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Telebirr Electric Bike</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+      }
+
+      .container {
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+        font-size: 1.8em;
+        color: #007bff;
+      }
+
+      button {
+        background-color: #28a745;
+        color: white;
+        padding: 12px 20px;
+        font-size: 1.2em;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        margin: 10px 0;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #218838;
+      }
+
+      button:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+      }
+
+      #spinner {
+        display: none;
+        margin: 20px auto;
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #007bff;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .status {
+        font-size: 1.2em;
+        margin: 20px 0;
+        color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Telebirr Electric Bike</h1>
+      <div id="status" class="status">Status: Locked</div>
+      <button id="unlockBtn">Unlock Bike</button>
+      <button id="lockBtn" style="display: none">Lock Bike</button>
+      <div id="spinner"></div>
+    </div>
+
+    <script>
+      const unlockBtn = document.getElementById("unlockBtn");
+      const lockBtn = document.getElementById("lockBtn");
+      const statusDiv = document.getElementById("status");
+      const spinner = document.getElementById("spinner");
+      const imei = "867255075759094";
+      let pollingInterval;
+
+      // API endpoint to check bike status
+      const CHECK_STATUS_URL =
+        "https://1275-196-190-61-74.ngrok-free.app/getBikeStatus";
+
+      let headers = new Headers();
+
+      headers.append("Content-Type", "application/json");
+      headers.append("Accept", "application/json");
+
+      headers.append("Access-Control-Allow-Origin", "*");
+      headers.append("Access-Control-Allow-Credentials", "true");
+
+      headers.append("GET", "POST", "OPTIONS");
+
+      // Function to simulate polling the API
+      function pollBikeStatus(expectedStatus) {
+        pollingInterval = setInterval(() => {
+          fetch("https://1275-196-190-61-74.ngrok-free.app/getBikeStatus", {
+            method: "POST",
+            headers: headers,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.bikeStatus == expectedStatus) {
+                clearInterval(pollingInterval);
+                spinner.style.display = "none";
+
+                if (expectedStatus === "unlocked") {
+                  statusDiv.textContent = "Status: Unlocked";
+                  unlockBtn.style.display = "none";
+                  lockBtn.style.display = "block";
+                } else if (expectedStatus === "locked") {
+                  statusDiv.textContent = "Status: Locked";
+                  lockBtn.style.display = "none";
+                  unlockBtn.style.display = "block";
+                }
+              }
+            })
+            .catch((err) => {
+              console.error("Error checking status:", err);
+              clearInterval(pollingInterval);
+              spinner.style.display = "none";
+            });
+        }, 2000);
+      }
+
+      // Unlock button event
+      unlockBtn.addEventListener("click", () => {
+        spinner.style.display = "block";
+        statusDiv.textContent = "Status: Unlocking...";
+        fetch("https://1275-196-190-61-74.ngrok-free.app/send-clr0", {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify({ imei }),
+        })
+          .then((response) => response.json())
+          .then(() => {
+            pollBikeStatus("unlocked");
+          })
+          .catch((err) => {
+            console.error("Error unlocking bike:", err);
+            spinner.style.display = "none";
+            statusDiv.textContent = "Error unlocking bike.";
+          });
+      });
+
+      // Lock button event
+      lockBtn.addEventListener("click", () => {
+        spinner.style.display = "block";
+        statusDiv.textContent = "Status: Locking...";
+        fetch("https://1275-196-190-61-74.ngrok-free.app/send-clr1", {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify({ imei }),
+        })
+          .then((response) => response.json())
+          .then(() => {
+            pollBikeStatus("locked");
+          })
+          .catch((err) => {
+            console.error("Error locking bike:", err);
+            spinner.style.display = "none";
+            statusDiv.textContent = "Error locking bike.";
+          });
+      });
+    </script>
+  </body>
+</html>
