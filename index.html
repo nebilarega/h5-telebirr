@@ -8,7 +8,6 @@
     />
     <title>Telebirr Electric Bike</title>
     <style>
-      /* General Reset */
       * {
         margin: 0;
         padding: 0;
@@ -169,12 +168,30 @@
           loadingDiv.style.display = "block"; // Show loading indicator
           stopScanner();
 
-          // Simulate a backend check (replace with your actual backend logic)
-          setTimeout(() => {
-            loadingDiv.style.display = "none"; // Hide loading indicator
-            // Redirect to a new page (you can replace this URL later)
-            window.location.href = "successPage.html";
-          }, 3000);
+          fetch("https://rnqlh-196-190-61-74.a.free.pinggy.link/checkBikeId", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ bikeId: decodedText }),
+          })
+            .then((response) => {
+              loadingDiv.style.display = "none"; // Hide loading indicator
+              if (response.ok) {
+                return response.json();
+              } else {
+                return response.json().then((err) => Promise.reject(err));
+              }
+            })
+            .then((data) => {
+              // Redirect to the ride page and pass data as query parameters
+              window.location.href = `ride.html`;
+            })
+            .catch((err) => {
+              // Handle error responses
+              errorDiv.textContent = err.message || "An error occurred.";
+              errorDiv.style.display = "block";
+            });
         } else {
           errorDiv.textContent =
             "Invalid QR code. Only 10-digit numbers are allowed.";
