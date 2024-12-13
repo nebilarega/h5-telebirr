@@ -139,7 +139,8 @@
       const readerDiv = document.getElementById("reader");
 
       function onScanSuccess(decodedText) {
-        if (/^\d{12}$/.test(decodedText)) {
+        // Updated regex to check for 10-digit numbers
+        if (/^\d{10}$/.test(decodedText)) {
           resultDiv.textContent = "Scanned Number: " + decodedText;
           resultDiv.style.display = "block";
           errorDiv.style.display = "none";
@@ -148,7 +149,7 @@
           startScanBtn.style.display = "block";
         } else {
           errorDiv.textContent =
-            "Invalid QR code. Only 12-digit numbers are allowed.";
+            "Invalid QR code. Only 10-digit numbers are allowed.";
           errorDiv.style.display = "block";
         }
       }
