@@ -184,11 +184,10 @@
               }
             })
             .then((data) => {
-              // Redirect to the ride page and pass data as query parameters
               window.location.href = `ride.html`;
             })
             .catch((err) => {
-              // Handle error responses
+              console.log(err);
               errorDiv.textContent = err.message || "An error occurred.";
               errorDiv.style.display = "block";
             });
