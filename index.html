@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, user-scalable=no"
     />
-    <title>Mobile QR Code Scanner</title>
+    <title>Telebirr Electric Bike</title>
     <style>
       /* General Reset */
       * {
@@ -17,7 +17,7 @@
 
       body {
         font-family: "Helvetica Neue", Arial, sans-serif;
-        background-color: #f0f0f0;
+        background-color: #f8f9fa;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -27,9 +27,9 @@
 
       .container {
         background-color: #fff;
-        padding: 20px;
+        padding: 30px;
         border-radius: 16px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         width: 100%;
         max-width: 400px;
         text-align: center;
@@ -40,8 +40,8 @@
       }
 
       h1 {
-        font-size: 1.5em;
-        color: #333;
+        font-size: 2em;
+        color: #007bff;
         margin-bottom: 20px;
       }
 
@@ -74,6 +74,26 @@
         display: none;
       }
 
+      .circular-progress {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #007bff;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 2s linear infinite;
+        margin: 20px auto;
+        display: none;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
       button {
         background-color: #007bff;
         color: #fff;
@@ -84,6 +104,7 @@
         cursor: pointer;
         width: 100%;
         margin-top: 10px;
+        transition: background-color 0.3s;
       }
 
       button:hover {
@@ -118,9 +139,10 @@
   </head>
   <body>
     <div class="container">
-      <h1>QR Code Scanner</h1>
+      <h1>Telebirr Electric Bike</h1>
       <button id="startScanBtn">Start Scan</button>
       <div id="reader"></div>
+      <div id="loading" class="circular-progress"></div>
       <div id="result" class="result"></div>
       <div id="error" class="error"></div>
       <button id="restartBtn" style="display: none">Restart Scanner</button>
@@ -137,16 +159,22 @@
       const startScanBtn = document.getElementById("startScanBtn");
       const stopScanBtn = document.getElementById("stopScanBtn");
       const readerDiv = document.getElementById("reader");
+      const loadingDiv = document.getElementById("loading");
 
       function onScanSuccess(decodedText) {
-        // Updated regex to check for 10-digit numbers
         if (/^\d{10}$/.test(decodedText)) {
           resultDiv.textContent = "Scanned Number: " + decodedText;
           resultDiv.style.display = "block";
           errorDiv.style.display = "none";
+          loadingDiv.style.display = "block"; // Show loading indicator
           stopScanner();
-          restartBtn.style.display = "block";
-          startScanBtn.style.display = "block";
+
+          // Simulate a backend check (replace with your actual backend logic)
+          setTimeout(() => {
+            loadingDiv.style.display = "none"; // Hide loading indicator
+            // Redirect to a new page (you can replace this URL later)
+            window.location.href = "successPage.html";
+          }, 3000);
         } else {
           errorDiv.textContent =
             "Invalid QR code. Only 10-digit numbers are allowed.";
