@@ -171,7 +171,7 @@
       const loadingDiv = document.getElementById("loading");
       const urlParams = new URLSearchParams(window.location.search);
       const imei = urlParams.get("imei");
-      const BASE_URL = "https://620f-196-190-61-74.ngrok-free.app";
+      const BASE_URL = "https://cc4c-196-188-78-23.ngrok-free.app";
 
       function onScanSuccess(decodedText) {
         if (/^\d{10}$/.test(decodedText)) {
@@ -186,11 +186,6 @@
 
           headers.append("Content-Type", "application/json");
           headers.append("Accept", "application/json");
-
-          headers.append("Access-Control-Allow-Origin", "*");
-          headers.append("Access-Control-Allow-Credentials", "true");
-
-          headers.append("GET", "POST", "OPTIONS");
 
           fetch(BASE_URL + "/checkBikeId", {
             method: "POST",
