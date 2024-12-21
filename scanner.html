@@ -2,7 +2,6 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- Add Gotham Medium font here -->
 
     <meta
       name="viewport"
@@ -171,7 +170,7 @@
       const loadingDiv = document.getElementById("loading");
       const urlParams = new URLSearchParams(window.location.search);
       const imei = urlParams.get("imei");
-      const BASE_URL = "http://localhost:3000";
+      const BASE_URL = "http://196.188.63.43:3000";
 
       function onScanSuccess(decodedText) {
         if (/^\d{10}$/.test(decodedText)) {
