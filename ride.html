@@ -12,8 +12,7 @@
       }
 
       @font-face {
-        font-family: "Montserrat" "Gothic Medium", "Arial Narrow", Arial,
-          sans-serif;
+        font-family: "Gothic Medium", "Arial Narrow", Arial, sans-serif;
         src: url();
       }
 
@@ -165,7 +164,8 @@
       </div>
       <div id="price" class="price-label">Price: Check</div>
       <div id="status" class="status locked">Status: Locked</div>
-      <button id="unlockBtn" disabled>Unlock Bike</button>
+      <button id="payBtn" disabled>Pay</button>
+      <button id="unlockBtn" disabled style="display: none">Unlock Bike</button>
       <div id="spinner"></div>
       <div id="timer" class="timer" style="display: none"></div>
       <img id="bikeImage" src="bicycleRiding.gif" alt="Bike Image" />
@@ -177,6 +177,7 @@
       const imei = urlParams.get("imei");
       const bikeId = urlParams.get("bikeId");
 
+      const payBtn = document.getElementById("payBtn");
       const unlockBtn = document.getElementById("unlockBtn");
       const lockBtn = document.getElementById("lockBtn");
       const statusDiv = document.getElementById("status");
@@ -187,10 +188,11 @@
       const bikeImage = document.getElementById("bikeImage");
       let pollingInterval;
       let timerInterval;
+      let eventSource;
 
       // API endpoints
-      const BASE_URL = "https://cc4c-196-188-78-23.ngrok-free.app";
-      const CHECK_STATUS_URL = BASE_URL + "/getBikeStatus";
+      const BASE_URL = "http://196.188.63.43:3000";
+      const CHECK_STATUS_URL = BASE_URL + "/api/devices/getBikeStatus";
 
       let headers = new Headers();
       headers.append("Content-Type", "application/json");
@@ -205,12 +207,12 @@
 
       let selectedDuration = null;
 
-      // Function to simulate polling the API
       function pollBikeStatus(expectedStatus) {
         pollingInterval = setInterval(() => {
-          fetch(BASE_URL + "/getBikeStatus", {
+          fetch(CHECK_STATUS_URL, {
             method: "POST",
             headers: headers,
+            body: JSON.stringify({ imei }),
           })
             .then((response) => response.json())
             .then((data) => {
@@ -256,12 +258,61 @@
         }, 2000);
       }
 
+      // Payment Button Event
+      payBtn.addEventListener("click", () => {
+        payBtn.disabled = true;
+        payBtn.textContent = "Processing Payment...";
+        fetch(BASE_URL + "/api/payment/init", {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify({
+            title: "Fist Ride",
+            amount: selectedDuration.toString(),
+          }),
+        })
+          .then((res) => {
+            res
+              .text()
+              .then((rawRequest) => {
+                //   console.log(rawRequest.trim());
+                let obj = JSON.stringify({
+                  functionName: "js_fun_start_pay",
+                  params: {
+                    rawRequest: rawRequest.trim(),
+                    functionCallBackName: "handleinitDataCallback",
+                  },
+                });
+
+                if (typeof rawRequest === undefined || rawRequest === null)
+                  return;
+                if (
+                  window.consumerapp === undefined ||
+                  window.consumerapp === null
+                ) {
+                  console.log("This is not opened in app!");
+                  return;
+                }
+                window.consumerapp.evaluate(obj);
+              })
+              .catch((error) => {
+                console.log("error occur", error);
+                spinner.style.display = "none";
+                statusDiv.textContent = "Error paying bike. Please try again.";
+              })
+              .finally(() => {});
+          })
+          .finally(() => {
+            payBtn.disabled = false;
+            payBtn.textContent = "Pay";
+          });
+      });
+
       // Unlock button event
       unlockBtn.addEventListener("click", () => {
         unlockBtn.disabled = true;
         spinner.style.display = "block";
         statusDiv.textContent = "Status: Unlocking...";
-        fetch(BASE_URL + "/send-clr0", {
+        fetch(BASE_URL + "/api/devices/send-clr0", {
           method: "POST",
           headers: headers,
           body: JSON.stringify({ imei }),
@@ -283,7 +334,7 @@
         lockBtn.disabled = true;
         spinner.style.display = "block";
         statusDiv.textContent = "Status: Locking...";
-        fetch(BASE_URL + "/send-clr1", {
+        fetch(BASE_URL + "/api/devices/send-clr0/send-clr1", {
           method: "POST",
           headers: headers,
           body: JSON.stringify({ imei }),
@@ -304,7 +355,6 @@
       function selectDuration(duration) {
         selectedDuration = duration;
         priceDiv.textContent = `Price: ${prices[duration]} Birr`;
-
         // Apply a border to the selected button
         const buttons = document.querySelectorAll(".radio-buttons button");
         buttons.forEach((button) => {
@@ -312,7 +362,7 @@
         });
         document.getElementById(`btn${duration}min`).classList.add("selected"); // Add border to selected
 
-        unlockBtn.disabled = false; // Enable unlock button when duration is selected
+        payBtn.disabled = false;
       }
 
       // Timer countdown
@@ -345,6 +395,40 @@
         buttons.forEach((button) => {
           button.classList.remove("selected");
         });
+      }
+
+      function connectSSE(userId) {
+        const statusDiv = document.getElementById("status");
+        const eventsDiv = document.getElementById("events");
+
+        if (!userId) {
+          console.error("User ID is not defined");
+          return;
+        }
+
+        // Close any existing connection
+        if (eventSource) {
+          eventSource.close();
+        }
+
+        // Connect to the SSE endpoint with the user's ID
+        eventSource = new EventSource(
+          `${BASE_URL}/api/webhook/events/${userId}`
+        );
+        console.log("Connecting to server...");
+        eventSource.onopen = () => {
+          console.log("Connected to server!");
+        };
+
+        eventSource.onmessage = (event) => {
+          const eventData = JSON.parse(event.data);
+          const eventElement = document.createElement("div");
+          console.log(eventData);
+        };
+
+        eventSource.onerror = (error) => {
+          console.error("SSE error:", error);
+        };
       }
     </script>
   </body>

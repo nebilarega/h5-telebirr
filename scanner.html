@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <title>ethioTele Electric Bike</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      @font-face {
+        font-family: "Montserrat" "Gothic Medium", "Arial Narrow", Arial,
+          sans-serif;
+        src: url();
+      }
+
+      body {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        background-color: #f8f9fa;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        padding: 10px;
+      }
+
+      .container {
+        background-color: #fff;
+        background-image: url("ethioteleLogo.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+      }
+
+      h1 {
+        font-size: 2em;
+        color: #7dc11f;
+        margin-bottom: 20px;
+      }
+
+      #reader {
+        width: 100%;
+        height: 300px;
+        margin-bottom: 20px;
+        border: 2px dashed #007bff;
+        border-radius: 12px;
+        background-color: #f9f9f9;
+        position: relative;
+        display: none;
+      }
+
+      .result {
+        background-color: #e6ffed;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 1.2em;
+        color: #28a745;
+        margin-top: 10px;
+        display: none;
+      }
+      .error {
+        color: #d9534f;
+        font-size: 1em;
+        font-weight: bold;
+        margin-top: 10px;
+        display: none;
+      }
+
+      .circular-progress {
+        border: 8px solid #f3f3f3;
+        border-top: 8px solid #7dc11f;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 2s linear infinite;
+        margin: 20px auto;
+        display: none;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      button {
+        color: #fff;
+        border: none;
+        padding: 12px 20px;
+        font-size: 1em;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 10px;
+        transition: background-color 0.3s;
+      }
+
+      #startScanBtn {
+        background-color: #7dc11f;
+      }
+
+      #startScanBtn:hover {
+        background-color: #6ba41b;
+      }
+
+      #stopScanBtn {
+        background-color: #d9534f;
+        display: none;
+      }
+
+      #stopScanBtn:hover {
+        background-color: #c9302c;
+      }
+
+      #permissionBtn {
+        display: none;
+        background-color: #ffc107;
+        color: #212529;
+      }
+
+      #permissionBtn:hover {
+        background-color: #e0a800;
+      }
+    </style>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"
+      integrity="sha512-r6rDA7W6ZeQhvl8S7yRVQUKVHdexq+GAlNkNNqVC7YyIV+NwqCTJe2hDWCiffTyRNOeGEzRRJ9ifvRm/HCzGYg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Tele Electric Bike</h1>
+      <button id="startScanBtn">Start Scan</button>
+      <div id="reader"></div>
+      <div id="loading" class="circular-progress"></div>
+      <div id="result" class="result"></div>
+      <div id="error" class="error"></div>
+      <button id="restartBtn" style="display: none">Restart Scanner</button>
+      <button id="permissionBtn">Request Camera Access</button>
+      <button id="stopScanBtn">Stop Scan</button>
+    </div>
+
+    <script>
+      const qrCodeReader = new Html5Qrcode("reader");
+      const resultDiv = document.getElementById("result");
+      const errorDiv = document.getElementById("error");
+      const restartBtn = document.getElementById("restartBtn");
+      const permissionBtn = document.getElementById("permissionBtn");
+      const startScanBtn = document.getElementById("startScanBtn");
+      const stopScanBtn = document.getElementById("stopScanBtn");
+      const readerDiv = document.getElementById("reader");
+      const loadingDiv = document.getElementById("loading");
+      const urlParams = new URLSearchParams(window.location.search);
+      const imei = urlParams.get("imei");
+      const BASE_URL = "http://196.188.63.43:3000";
+
+      function onScanSuccess(decodedText) {
+        if (/^\d{10}$/.test(decodedText)) {
+          resultDiv.textContent = "Scanned Bike Id: " + decodedText;
+          resultDiv.style.display = "block";
+          errorDiv.style.display = "none";
+          loadingDiv.style.display = "block"; // Show loading indicator
+
+          stopScanner();
+
+          const token = localStorage.getItem("token");
+          let headers = new Headers();
+
+          headers.append("Content-Type", "application/json");
+          headers.append("Accept", "application/json");
+          headers.append("Authorization", `Bearer ${token}`);
+
+          fetch(BASE_URL + "/api/devices/checkBikeId", {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify({ bikeId: decodedText }),
+            mode: "cors",
+          })
+            .then((response) => {
+              loadingDiv.style.display = "none"; // Hide loading indicator
+              if (response.ok) {
+                return response.json();
+              } else {
+                return response.json().then((err) => Promise.reject(err));
+              }
+            })
+            .then((data) => {
+              console.log("Data is: ", data);
+              window.location.href = `ride.html?imei=${data.imei}&bikeId=${decodedText}`;
+            })
+            .catch((err) => {
+              console.log(err);
+              errorDiv.textContent = err.message || "An error occurred.";
+              errorDiv.style.display = "block";
+              if (loadingDiv) loadingDiv.style.display = "none";
+            });
+        } else {
+          errorDiv.textContent =
+            "Invalid QR code. Only 10-digit numbers are allowed.";
+          errorDiv.style.display = "block";
+        }
+      }
+
+      function onScanFailure(error) {
+        console.warn(`QR scan error: ${error}`);
+      }
+
+      function startScanner() {
+        readerDiv.style.display = "block";
+        startScanBtn.style.display = "none";
+        stopScanBtn.style.display = "block";
+        qrCodeReader
+          .start(
+            { facingMode: "environment" }, // Prefer back camera on mobile
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            onScanSuccess,
+            onScanFailure
+          )
+          .catch((err) => {
+            errorDiv.textContent = "Camera access denied or unavailable.";
+            errorDiv.style.display = "block";
+            permissionBtn.style.display = "block";
+            startScanBtn.style.display = "block";
+            stopScanBtn.style.display = "none";
+          });
+      }
+
+      function stopScanner() {
+        qrCodeReader
+          .stop()
+          .then(() => {
+            readerDiv.style.display = "none";
+            stopScanBtn.style.display = "none";
+            startScanBtn.style.display = "block";
+          })
+          .catch((err) => {
+            console.error(`Stop error: ${err}`);
+          });
+      }
+
+      function requestCameraAccess() {
+        navigator.mediaDevices
+          .getUserMedia({ video: true })
+          .then(() => {
+            errorDiv.style.display = "none";
+            permissionBtn.style.display = "none";
+            startScanner();
+          })
+          .catch(() => {
+            errorDiv.textContent = "Camera permission is still denied.";
+            errorDiv.style.display = "block";
+          });
+      }
+
+      restartBtn.addEventListener("click", () => {
+        resultDiv.style.display = "none";
+        restartBtn.style.display = "none";
+        errorDiv.style.display = "none";
+        startScanner();
+      });
+
+      permissionBtn.addEventListener("click", requestCameraAccess);
+      startScanBtn.addEventListener("click", startScanner);
+      stopScanBtn.addEventListener("click", stopScanner);
+    </script>
+  </body>
+</html>

@@ -3,28 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login</title>
+    <title>Sign Up</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="container">
-      <h1>Login</h1>
-      <form id="loginForm">
+      <h1>Sign Up</h1>
+      <form id="signupForm">
         <input
-          type="text"
-          id="username"
-          placeholder="Enter your username"
+          type="email"
+          id="signupEmail"
+          placeholder="Enter your email"
           required
         />
         <input
           type="password"
-          id="password"
+          id="signupPassword"
           placeholder="Enter your password"
           required
         />
-        <button type="submit" class="submit-button">Login</button>
+        <button type="submit" class="submit-button">Sign Up</button>
       </form>
-      <p>Don't have an account? <a href="signup.html">Sign Up</a></p>
+      <p>Already have an account? <a href="index.html">Login</a></p>
     </div>
 
     <script src="js/app.js" defer></script>
