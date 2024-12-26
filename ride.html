@@ -192,7 +192,7 @@
 
       // API endpoints
       const BASE_URL = "http://196.188.63.43:3000";
-      const CHECK_STATUS_URL = BASE_URL + "/getBikeStatus";
+      const CHECK_STATUS_URL = BASE_URL + "/api/devices/getBikeStatus";
 
       let headers = new Headers();
       headers.append("Content-Type", "application/json");
@@ -207,12 +207,12 @@
 
       let selectedDuration = null;
 
-      // Function to simulate polling the API
       function pollBikeStatus(expectedStatus) {
         pollingInterval = setInterval(() => {
-          fetch(BASE_URL + "/getBikeStatus", {
+          fetch(CHECK_STATUS_URL, {
             method: "POST",
             headers: headers,
+            body: JSON.stringify({ imei }),
           })
             .then((response) => response.json())
             .then((data) => {
@@ -270,15 +270,36 @@
             amount: selectedDuration.toString(),
           }),
         })
-          .then((response) => response.json())
-          .then(() => {
-            <!-- pollBikeStatus("unlocked"); -->
-            unlockBtn.disabled = false;
-          })
-          .catch((err) => {
-            console.error("Error unlocking bike:", err);
-            spinner.style.display = "none";
-            statusDiv.textContent = "Error paying bike. Please try again.";
+          .then((res) => {
+            res
+              .text()
+              .then((rawRequest) => {
+                //   console.log(rawRequest.trim());
+                let obj = JSON.stringify({
+                  functionName: "js_fun_start_pay",
+                  params: {
+                    rawRequest: rawRequest.trim(),
+                    functionCallBackName: "handleinitDataCallback",
+                  },
+                });
+
+                if (typeof rawRequest === undefined || rawRequest === null)
+                  return;
+                if (
+                  window.consumerapp === undefined ||
+                  window.consumerapp === null
+                ) {
+                  console.log("This is not opened in app!");
+                  return;
+                }
+                window.consumerapp.evaluate(obj);
+              })
+              .catch((error) => {
+                console.log("error occur", error);
+                spinner.style.display = "none";
+                statusDiv.textContent = "Error paying bike. Please try again.";
+              })
+              .finally(() => {});
           })
           .finally(() => {
             payBtn.disabled = false;

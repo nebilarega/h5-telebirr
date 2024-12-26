@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (data.token) {
         localStorage.setItem("token", data.token);
-        window.location.href = "ride.html";
+        window.location.href = "scanner.html";
       } else {
         alert("Login failed. Please check your credentials.");
       }
@@ -51,7 +51,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-  if (window.location.pathname === "/ride.html") {
+  if (
+    window.location.pathname === "/ride.html" ||
+    window.location.pathname === "/scanner.html"
+  ) {
     const token = localStorage.getItem("token");
     if (!token) {
       window.location.href = "index.html";
@@ -61,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (window.location.pathname === "/login.html") {
     const token = localStorage.getItem("token");
     if (token) {
-      window.location.href = "ride.html";
+      window.location.href = "scanner.html";
     }
   }
 });

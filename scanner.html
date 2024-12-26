@@ -103,7 +103,6 @@
       }
 
       button {
-        background-color: #7dc11f;
         color: #fff;
         border: none;
         padding: 12px 20px;
@@ -115,7 +114,11 @@
         transition: background-color 0.3s;
       }
 
-      button:hover {
+      #startScanBtn {
+        background-color: #7dc11f;
+      }
+
+      #startScanBtn:hover {
         background-color: #6ba41b;
       }
 
@@ -181,10 +184,12 @@
 
           stopScanner();
 
+          const token = localStorage.getItem("token");
           let headers = new Headers();
 
           headers.append("Content-Type", "application/json");
           headers.append("Accept", "application/json");
+          headers.append("Authorization", `Bearer ${token}`);
 
           fetch(BASE_URL + "/api/devices/checkBikeId", {
             method: "POST",
