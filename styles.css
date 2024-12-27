@@ -1,3 +1,4 @@
+/* Centering and background from styles.css */
 body {
   font-family: "Helvetica Neue", Arial, sans-serif;
   background-color: #f8f9fa;
@@ -5,68 +6,44 @@ body {
   justify-content: center;
   align-items: center;
   height: 90vh;
-  padding: 10px;
+  margin: 0;
 }
 
-.container {
-  background-color: #fff;
-  /* background-image: url("ethioteleLogo.png"); */
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  height: fit-content;
-  max-width: 400px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+/* Loader container */
+.loader {
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+  position: relative;
 }
 
-h1 {
-  font-size: 2em;
-  color: #7dc11f;
-  margin-bottom: 20px;
+/* Loader circles */
+.loader div {
+  position: absolute;
+  border: 4px solid #7dc11f; /* Match button color */
+  opacity: 1;
+  border-radius: 50%;
+  animation: loader-animation 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
 }
 
-input {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1em;
+.loader div:nth-child(2) {
+  animation-delay: -0.5s;
 }
 
-button {
-  background-color: #7dc11f;
-  color: #fff;
-  border: none;
-  padding: 12px 20px;
-  font-size: 1em;
-  border-radius: 8px;
-  cursor: pointer;
-  width: 100%;
-  margin-top: 10px;
-  transition: background-color 0.3s;
-}
-
-button:hover {
-  background-color: #6ba41b;
-}
-
-a {
-  color: #007bff;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-.submit-button {
-  margin-top: 2rem;
+/* Animation for circles */
+@keyframes loader-animation {
+  0% {
+    top: 36px;
+    left: 36px;
+    width: 0;
+    height: 0;
+    opacity: 1;
+  }
+  100% {
+    top: 0;
+    left: 0;
+    width: 72px;
+    height: 72px;
+    opacity: 0;
+  }
 }
