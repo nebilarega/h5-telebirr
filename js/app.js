@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (data.token) {
       localStorage.setItem("token", data.token);
+      localStorage.setItem("userId", data.userId);
       window.location.href = "scanner.html";
     } else {
       alert("Something went wrong. Please reopen the page and try again.");
