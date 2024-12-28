@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tele Electric Bike</title>
+    <link rel="stylesheet" href="main.css" />
+    <script src="js/config.js" defer></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Tele Electric Bike</h1>
+      <div class="radio-buttons" id="timeButtons">
+        <button id="btn10min" onclick="selectDuration(10)">10 Min</button>
+        <button id="btn15min" onclick="selectDuration(15)">15 Min</button>
+        <button id="btn20min" onclick="selectDuration(20)">20 Min</button>
+      </div>
+      <div id="price" class="price-label">Price: Check</div>
+      <button id="payBtn" disabled>Pay</button>
+      <div id="spinner"></div>
+    </div>
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const imei = urlParams.get("imei");
+      const bikeId = urlParams.get("bikeId");
+
+      const payBtn = document.getElementById("payBtn");
+      const statusDiv = document.getElementById("status");
+      const spinner = document.getElementById("spinner");
+      const priceDiv = document.getElementById("price");
+      const timeButtons = document.getElementById("timeButtons");
+      const timerDiv = document.getElementById("timer");
+      const bikeImage = document.getElementById("bikeImage");
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      let pollingInterval;
+      let timerInterval;
+      let eventSource;
+      let headers = new Headers();
+      headers.append("Content-Type", "application/json");
+      headers.append("Accept", "application/json");
+      headers.append("Authorization", `Bearer ${token}`);
+
+      // Prices based on selected duration
+      const prices = {
+        10: 100,
+        15: 150,
+        20: 200,
+      };
+
+      let selectedDuration = null;
+
+      function selectDuration(duration) {
+        selectedDuration = duration;
+        priceDiv.textContent = `Price: ${prices[duration]} Birr`;
+        // Apply a border to the selected button
+        const buttons = document.querySelectorAll(".radio-buttons button");
+        buttons.forEach((button) => {
+          button.classList.remove("selected"); // Remove from other buttons
+        });
+        document.getElementById(`btn${duration}min`).classList.add("selected"); // Add border to selected
+
+        payBtn.disabled = false;
+      }
+
+      function extractMerchOrderId(rawRequest) {
+        const params = new URLSearchParams(rawRequest);
+        return params.get("merch_order_id");
+      }
+
+      payBtn.addEventListener("click", () => {
+        payBtn.disabled = true;
+        payBtn.textContent = "Processing Payment...";
+        fetch(window.APP_CONFIG.BASE_URL + "/api/payment/init", {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify({
+            title: "Fist Ride",
+            amount: prices[selectedDuration].toString(),
+            userId: userId,
+          }),
+        })
+          .then((res) => {
+            res
+              .text()
+              .then((rawRequest) => {
+                console.log("rawRequest:", rawRequest);
+                if (!rawRequest) {
+                  console.error("rawRequest is empty or undefined.");
+                  spinner.style.display = "none";
+                  statusDiv.textContent = "Error: No payment data received.";
+                  return;
+                }
+                const merchOrderId = extractMerchOrderId(rawRequest);
+                if (merchOrderId) {
+                  localStorage.setItem("merch_order_id", merchOrderId);
+                  localStorage.setItem("imei", imei);
+                  localStorage.setItem("bikeId", bikeId);
+                  console.log("Extracted merch_order_id:", merchOrderId);
+                } else {
+                  console.error(
+                    "Failed to extract merch_order_id from rawRequest."
+                  );
+                  spinner.style.display = "none";
+                  statusDiv.textContent = "Error processing payment data.";
+                  return;
+                }
+                let obj = JSON.stringify({
+                  functionName: "js_fun_start_pay",
+                  params: {
+                    rawRequest: rawRequest.trim(),
+                    functionCallBackName: "handleinitDataCallback",
+                  },
+                });
+                <!-- if (
+                  window.consumerapp === undefined ||
+                  window.consumerapp === null
+                ) {
+                  console.log("This is not opened in app!");
+                  return;
+                }
+                window.consumerapp.evaluate(obj); -->
+              })
+              .catch((error) => {
+                console.log("error occur", error);
+                spinner.style.display = "none";
+                statusDiv.textContent = "Error paying bike. Please try again.";
+              })
+              .finally(() => {});
+          })
+          .finally(() => {
+            payBtn.disabled = false;
+            payBtn.textContent = "Pay";
+          });
+      });
+    </script>
+  </body>
+</html>

@@ -1,8 +1,9 @@
-const baseUrl = "http://apps.cybertribs.com";
-
 document.addEventListener("DOMContentLoaded", () => {
   async function loginRandom() {
-    const response = await fetch(`${baseUrl}/api/users/loginRandom`, {});
+    const response = await fetch(
+      `${window.APP_CONFIG.BASE_URL}/api/users/loginRandom`,
+      {}
+    );
     const data = await response.json();
 
     if (data.token) {

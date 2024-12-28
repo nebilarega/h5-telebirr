@@ -1,0 +1,157 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+@font-face {
+  font-family: "Gothic Medium", "Arial Narrow", Arial, sans-serif;
+  src: url();
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+}
+
+.container {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 20px;
+  font-size: 1.8em;
+  color: #7dc11f;
+}
+
+button {
+  padding: 12px 20px;
+  font-size: 1.2em;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  margin: 10px 0;
+  transition: background-color 0.3s ease;
+}
+
+#unlockBtn {
+  background-color: #28a745;
+  color: white;
+}
+
+#unlockBtn:hover {
+  background-color: #218838;
+}
+
+#unlockBtn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+#lockBtn {
+  background-color: #dc3545;
+  color: white;
+  display: none; /* Hidden by default, shown after unlocking */
+}
+
+#lockBtn:hover {
+  background-color: #c82333;
+}
+
+#lockBtn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.radio-buttons {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.radio-buttons button {
+  margin: 0 10px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 8px;
+  padding: 12px 20px;
+  cursor: pointer;
+}
+
+.radio-buttons button.selected {
+  border: 3px solid #ffc107; /* Highlight the selected button */
+  background-color: #0056b3; /* Darker shade for selected button */
+}
+
+.price-label {
+  font-size: 1.2em;
+  margin: 10px 0;
+  font-weight: bold;
+  color: #555;
+}
+
+#spinner {
+  display: none;
+  margin: 20px auto;
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #007bff;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.status {
+  font-size: 1.2em;
+  margin: 20px 0;
+  color: #555;
+}
+
+.unlocked {
+  color: #28a745;
+}
+
+.locked {
+  color: #dc3545;
+}
+
+.timer {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #007bff;
+  margin-top: 20px;
+}
+
+#bikeImage {
+  display: none;
+  width: 100%;
+  aspect-ratio: 1/1;
+  margin-bottom: 10px;
+}

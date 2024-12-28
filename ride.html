@@ -3,454 +3,215 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tele Electric Bike</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      @font-face {
-        font-family: "Gothic Medium", "Arial Narrow", Arial, sans-serif;
-        src: url();
-      }
-
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
-        color: #333;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 10px;
-      }
-
-      .container {
-        background: #fff;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        max-width: 400px;
-        text-align: center;
-      }
-
-      h1 {
-        margin-bottom: 20px;
-        font-size: 1.8em;
-        color: #7dc11f;
-      }
-
-      button {
-        padding: 12px 20px;
-        font-size: 1.2em;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        width: 100%;
-        margin: 10px 0;
-        transition: background-color 0.3s ease;
-      }
-
-      #unlockBtn {
-        background-color: #28a745;
-        color: white;
-      }
-
-      #unlockBtn:hover {
-        background-color: #218838;
-      }
-
-      #lockBtn {
-        background-color: #dc3545;
-        color: white;
-        display: none; /* Hidden by default, shown after unlocking */
-      }
-
-      #lockBtn:hover {
-        background-color: #c82333;
-      }
-
-      button:disabled {
-        background-color: #6c757d;
-        cursor: not-allowed;
-      }
-
-      .radio-buttons {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 20px;
-      }
-
-      .radio-buttons button {
-        margin: 0 10px;
-        background-color: #007bff;
-        color: white;
-        border-radius: 8px;
-        padding: 12px 20px;
-        cursor: pointer;
-      }
-
-      .radio-buttons button.selected {
-        border: 3px solid #ffc107; /* Highlight the selected button */
-        background-color: #0056b3; /* Darker shade for selected button */
-      }
-
-      .price-label {
-        font-size: 1.2em;
-        margin: 10px 0;
-        font-weight: bold;
-        color: #555;
-      }
-
-      #spinner {
-        display: none;
-        margin: 20px auto;
-        border: 8px solid #f3f3f3;
-        border-top: 8px solid #007bff;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        animation: spin 1s linear infinite;
-      }
-
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-
-      .status {
-        font-size: 1.2em;
-        margin: 20px 0;
-        color: #555;
-      }
-
-      .unlocked {
-        color: #28a745;
-      }
-
-      .locked {
-        color: #dc3545;
-      }
-
-      .timer {
-        font-size: 1.5em;
-        font-weight: bold;
-        color: #007bff;
-        margin-top: 20px;
-      }
-
-      #bikeImage {
-        display: none;
-        width: 100%;
-        aspect-ratio: 1/1;
-        margin-bottom: 10px;
-      }
-    </style>
+    <title>Tele Electric Payment</title>
+    <link rel="stylesheet" href="main.css" />
+    <script src="js/config.js" defer></script>
   </head>
   <body>
     <div class="container">
       <h1>Tele Electric Bike</h1>
-      <div class="radio-buttons" id="timeButtons">
-        <button id="btn10min" onclick="selectDuration(10)">10 Min</button>
-        <button id="btn15min" onclick="selectDuration(15)">15 Min</button>
-        <button id="btn20min" onclick="selectDuration(20)">20 Min</button>
-      </div>
-      <div id="price" class="price-label">Price: Check</div>
       <div id="status" class="status locked">Status: Locked</div>
-      <button id="payBtn" disabled>Pay</button>
-      <button id="unlockBtn" disabled style="display: none">Unlock Bike</button>
       <div id="spinner"></div>
+      <button id="unlockBtn">Unlock Bike</button>
       <div id="timer" class="timer" style="display: none"></div>
       <img id="bikeImage" src="bicycleRiding.gif" alt="Bike Image" />
       <button id="lockBtn" onclick="lockBike()">Lock Bike</button>
     </div>
 
     <script>
-            const urlParams = new URLSearchParams(window.location.search);
-            const imei = urlParams.get("imei");
-            const bikeId = urlParams.get("bikeId");
+      const urlParams = new URLSearchParams(window.location.search);
+      const imei = localStorage.getItem("imei");
+      const bikeId = localStorage.getItem("bikeId");
 
-            const payBtn = document.getElementById("payBtn");
-            const unlockBtn = document.getElementById("unlockBtn");
-            const lockBtn = document.getElementById("lockBtn");
-            const statusDiv = document.getElementById("status");
-            const spinner = document.getElementById("spinner");
-            const priceDiv = document.getElementById("price");
-            const timeButtons = document.getElementById("timeButtons");
-            const timerDiv = document.getElementById("timer");
-            const bikeImage = document.getElementById("bikeImage");
-            let pollingInterval;
-            let timerInterval;
-            let eventSource;
+      const payBtn = document.getElementById("payBtn");
+      const unlockBtn = document.getElementById("unlockBtn");
+      const lockBtn = document.getElementById("lockBtn");
+      const statusDiv = document.getElementById("status");
+      const spinner = document.getElementById("spinner");
+      const priceDiv = document.getElementById("price");
+      const timeButtons = document.getElementById("timeButtons");
+      const timerDiv = document.getElementById("timer");
+      const bikeImage = document.getElementById("bikeImage");
+      const token = localStorage.getItem("token");
+      const paymentToken = localStorage.getItem("payment_token");
+      let pollingInterval;
+      let timerInterval;
+      let eventSource;
 
-            // API endpoints
-            const BASE_URL = "http://apps.cybertribs.com";
-            const CHECK_STATUS_URL = BASE_URL + "/api/devices/getBikeStatus";
+      const CHECK_STATUS_URL =
+        window.APP_CONFIG.BASE_URL + "/api/devices/getBikeStatus";
 
-            let headers = new Headers();
-            headers.append("Content-Type", "application/json");
-            headers.append("Accept", "application/json");
+      let headers = new Headers();
+      headers.append("Content-Type", "application/json");
+      headers.append("Accept", "application/json");
+      headers.append("Authorization", `Bearer ${token}`);
 
-            // Prices based on selected duration
-            const prices = {
-              10: 100,
-              15: 150,
-              20: 200,
-            };
+      function pollBikeStatus(expectedStatus) {
+        pollingInterval = setInterval(() => {
+          fetch(CHECK_STATUS_URL, {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify({ imei, payment_token: paymentToken }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.bikeStatus == expectedStatus) {
+                clearInterval(pollingInterval);
+                spinner.style.display = "none";
 
-            let selectedDuration = null;
-
-            function pollBikeStatus(expectedStatus) {
-              pollingInterval = setInterval(() => {
-                fetch(CHECK_STATUS_URL, {
-                  method: "POST",
-                  headers: headers,
-                  body: JSON.stringify({ imei }),
-                })
-                  .then((response) => response.json())
-                  .then((data) => {
-                    if (data.bikeStatus == expectedStatus) {
-                      clearInterval(pollingInterval);
-                      spinner.style.display = "none";
-
-                      if (expectedStatus === "unlocked") {
-                        statusDiv.textContent = "Status: Unlocked";
-                        statusDiv.classList.remove("locked");
-                        statusDiv.classList.add("unlocked");
-                        unlockBtn.style.display = "none";
-                        lockBtn.style.display = "block";
-                        lockBtn.disabled = false;
-
-                        // Hide time buttons and show timer
-                        timeButtons.style.display = "none";
-                        timerDiv.style.display = "block";
-                        bikeImage.style.display = "block";
-
-                        startTimer(); // Start the countdown timer
-                      } else if (expectedStatus === "locked") {
-                        statusDiv.textContent = "Status: Locked";
-                        statusDiv.classList.remove("unlocked");
-                        statusDiv.classList.add("locked");
-                        lockBtn.style.display = "none";
-                        unlockBtn.style.display = "block";
-                        unlockBtn.disabled = false;
-
-                        // Show time buttons and hide timer
-                        timeButtons.style.display = "flex";
-                        timerDiv.style.display = "none";
-                        bikeImage.style.display = "none";
-                        resetTimer(); // Reset the timer when the bike is locked
-                      }
-                    }
-                  })
-                  .catch((err) => {
-                    console.error("Error checking status:", err);
-                    clearInterval(pollingInterval);
-                    spinner.style.display = "none";
-                  });
-              }, 2000);
-            }
-
-            // Payment Button Event
-            payBtn.addEventListener("click", () => {
-              payBtn.disabled = true;
-              payBtn.textContent = "Processing Payment...";
-              fetch(BASE_URL + "/api/payment/init", {
-                method: "POST",
-                headers: headers,
-                body: JSON.stringify({
-                  title: "Fist Ride",
-                  amount: selectedDuration.toString(),
-                }),
-              })
-                .then((res) => {
-                  res
-                    .text()
-                    .then((rawRequest) => {
-                      //   console.log(rawRequest.trim());
-                      let obj = JSON.stringify({
-                        functionName: "js_fun_start_pay",
-                        params: {
-                          rawRequest: rawRequest.trim(),
-                          functionCallBackName: "handleinitDataCallback",
-                        },
-                      });
-
-                      if (typeof rawRequest === undefined || rawRequest === null)
-                        return;
-                      if (
-                        window.consumerapp === undefined ||
-                        window.consumerapp === null
-                      ) {
-                        console.log("This is not opened in app!");
-                        return;
-                      }
-                      window.consumerapp.evaluate(obj);
-                    })
-                    .catch((error) => {
-                      console.log("error occur", error);
-                      spinner.style.display = "none";
-                      statusDiv.textContent = "Error paying bike. Please try again.";
-                    })
-                    .finally(() => {});
-                })
-                .finally(() => {
-                  payBtn.disabled = false;
-                  payBtn.textContent = "Pay";
-                });
-            });
-
-            // Unlock button event
-            unlockBtn.addEventListener("click", () => {
-              unlockBtn.disabled = true;
-              spinner.style.display = "block";
-              statusDiv.textContent = "Status: Unlocking...";
-              fetch(BASE_URL + "/api/devices/send-clr0", {
-                method: "POST",
-                headers: headers,
-                body: JSON.stringify({ imei }),
-              })
-                .then((response) => response.json())
-                .then(() => {
-                  pollBikeStatus("unlocked");
-                })
-                .catch((err) => {
-                  console.error("Error unlocking bike:", err);
-                  spinner.style.display = "none";
-                  statusDiv.textContent = "Error unlocking bike.";
-                  unlockBtn.disabled = false;
-                });
-            });
-
-            // Lock button event
-            function lockBike() {
-              lockBtn.disabled = true;
-              spinner.style.display = "block";
-              statusDiv.textContent = "Status: Locking...";
-              fetch(BASE_URL + "/api/devices/send-clr1", {
-                method: "POST",
-                headers: headers,
-                body: JSON.stringify({ imei }),
-              })
-                .then((response) => response.json())
-                .then(() => {
-                  pollBikeStatus("locked");
-                })
-                .catch((err) => {
-                  console.error("Error locking bike:", err);
-                  spinner.style.display = "none";
-                  statusDiv.textContent = "Error locking bike.";
+                if (expectedStatus === "unlocked") {
+                  statusDiv.textContent = "Status: Unlocked";
+                  statusDiv.classList.remove("locked");
+                  statusDiv.classList.add("unlocked");
+                  unlockBtn.style.display = "none";
+                  lockBtn.style.display = "block";
                   lockBtn.disabled = false;
-                });
-            }
 
-            // Select Duration for unlocking
-            function selectDuration(duration) {
-              selectedDuration = duration;
-              priceDiv.textContent = `Price: ${prices[duration]} Birr`;
-              // Apply a border to the selected button
-              const buttons = document.querySelectorAll(".radio-buttons button");
-              buttons.forEach((button) => {
-                button.classList.remove("selected"); // Remove from other buttons
-              });
-              document.getElementById(`btn${duration}min`).classList.add("selected"); // Add border to selected
+                  // Hide time buttons and show timer
+                  timeButtons.style.display = "none";
+                  timerDiv.style.display = "block";
+                  bikeImage.style.display = "block";
 
-              payBtn.disabled = false;
-            }
+                  startTimer(); // Start the countdown timer
+                } else if (expectedStatus === "locked") {
+                  statusDiv.textContent = "Status: Locked";
+                  statusDiv.classList.remove("unlocked");
+                  statusDiv.classList.add("locked");
+                  lockBtn.style.display = "none";
+                  unlockBtn.style.display = "block";
+                  unlockBtn.disabled = false;
 
-            // Timer countdown
-            function startTimer() {
-              let remainingTime = selectedDuration * 60; // in seconds
-              timerInterval = setInterval(() => {
-                if (remainingTime <= 0) {
-                  clearInterval(timerInterval);
-                  timerDiv.textContent = "Time's up!";
-                  lockBtn.disabled = true; // Disable lock button when time is up
-                } else {
-                  let minutes = Math.floor(remainingTime / 60);
-                  let seconds = remainingTime % 60;
-                  timerDiv.textContent = `Timer: ${minutes}m ${seconds}s`;
-                  remainingTime--;
+                  // Show time buttons and hide timer
+                  timeButtons.style.display = "flex";
+                  timerDiv.style.display = "none";
+                  bikeImage.style.display = "none";
+                  resetTimer(); // Reset the timer when the bike is locked
                 }
-              }, 1000);
-            }
-
-            // Reset Timer and UI
-            function resetTimer() {
-              clearInterval(timerInterval);
-              timerDiv.style.display = "none";
-              bikeImage.style.display = "none";
-              timeButtons.style.display = "flex"; // Show time buttons again
-              priceDiv.textContent = "Price: 0 Birr";
-              unlockBtn.disabled = true;
-              selectedDuration = null;
-              const buttons = document.querySelectorAll(".radio-buttons button");
-              buttons.forEach((button) => {
-                button.classList.remove("selected");
-              });
-            }
-
-            function connectSSE() {
-              const statusDiv = document.getElementById("status");
-              const eventsDiv = document.getElementById("events");
-              const userId = localStorage.getItem("userId");
-              if (!userId) {
-                console.error("User ID is not defined");
-                return;
               }
+            })
+            .catch((err) => {
+              console.error("Error checking status:", err);
+              clearInterval(pollingInterval);
+              spinner.style.display = "none";
+            });
+        }, 2000);
+      }
 
-              // Close any existing connection
-              if (eventSource) {
-                eventSource.close();
-              }
+      // Unlock button event
+      unlockBtn.addEventListener("click", () => {
+        unlockBtn.disabled = true;
+        spinner.style.display = "block";
+        statusDiv.textContent = "Status: Unlocking...";
+        fetch(window.APP_CONFIG.BASE_URL + "/api/devices/send-clr0", {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify({ imei, payment_token: paymentToken }),
+        })
+          .then((response) => response.json())
+          .then(() => {
+            pollBikeStatus("unlocked");
+          })
+          .catch((err) => {
+            console.error("Error unlocking bike:", err);
+            spinner.style.display = "none";
+            statusDiv.textContent = "Error unlocking bike.";
+            unlockBtn.disabled = false;
+          });
+      });
 
-              // Connect to the SSE endpoint with the user's ID
-              eventSource = new EventSource(
-                `${BASE_URL}/api/webhook/events/${userId}`
-              );
-              console.log("Connecting to server...");
-              eventSource.onopen = () => {
-                console.log("Connected to server!");
-              };
+      // Lock button event
+      function lockBike() {
+        lockBtn.disabled = true;
+        spinner.style.display = "block";
+        statusDiv.textContent = "Status: Locking...";
+        fetch(window.APP_CONFIG.BASE_URL + "/api/devices/send-clr1", {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify({ imei, payment_token: paymentToken }),
+        })
+          .then((response) => response.json())
+          .then(() => {
+            pollBikeStatus("locked");
+          })
+          .catch((err) => {
+            console.error("Error locking bike:", err);
+            spinner.style.display = "none";
+            statusDiv.textContent = "Error locking bike.";
+            lockBtn.disabled = false;
+          });
+      }
 
-              eventSource.onmessage = (event) => {
-                <!-- {
-         notify_url: 'http://197.156.68.29:5050/v2/api/order-v2/mini/payment',
-         appid: '853694808089634',
-         notify_time: '1670575472482',
-         merch_code: '245445',
-         merch_order_id: '1670575560882',
-         payment_order_id: '00801104C911443200001002',
-         total_amount: '10.00',
-         "trans_id":"49485948475845",
-         trans_currency: 'ETB',
-         trade_status: 'Completed',
-         trans_end_time: '1670575472000',
-         sign: 'AOwWQF0QDg0jzzs5otLYOunoR65GGgC3hyr+oYn8mm1Qph6Een7C…',
-         sign_type: 'SHA256WithRSA'
-      } -->
-         // The above is event data json, let check the trade_status
-          if (eventData.trade_status === 'Completed') {
+      // Timer countdown
+      function startTimer() {
+        let remainingTime = selectedDuration * 60 || 60;
+        timerInterval = setInterval(() => {
+          if (remainingTime <= 0) {
+            clearInterval(timerInterval);
+            timerDiv.textContent = "Time's up!";
+            lockBtn.disabled = true; // Disable lock button when time is up
+          } else {
+            let minutes = Math.floor(remainingTime / 60);
+            let seconds = remainingTime % 60;
+            timerDiv.textContent = `Timer: ${minutes}m ${seconds}s`;
+            remainingTime--;
+          }
+        }, 1000);
+      }
+
+      // Reset Timer and UI
+      function resetTimer() {
+        clearInterval(timerInterval);
+        timerDiv.style.display = "none";
+        bikeImage.style.display = "none";
+        timeButtons.style.display = "flex"; // Show time buttons again
+        priceDiv.textContent = "Price: 0 Birr";
+        unlockBtn.disabled = true;
+        selectedDuration = null;
+        const buttons = document.querySelectorAll(".radio-buttons button");
+        buttons.forEach((button) => {
+          button.classList.remove("selected");
+        });
+      }
+
+      function connectSSE() {
+        const statusDiv = document.getElementById("status");
+        const eventsDiv = document.getElementById("events");
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+          console.error("User ID is not defined");
+          return;
+        }
+
+        // Close any existing connection
+        if (eventSource) {
+          eventSource.close();
+        }
+
+        // Connect to the SSE endpoint with the user's ID
+        eventSource = new EventSource(
+          `${window.APP_CONFIG.BASE_URL}/api/webhook/events/${userId}`
+        );
+        console.log("Connecting to server...");
+        eventSource.onopen = () => {
+          console.log("Connected to server!");
+        };
+
+        eventSource.onmessage = (event) => {
+          // The above is event data json, let check the trade_status
+          if (eventData.trade_status === "Completed") {
             // If trade_status is Completed, then we can get the trans_id and trans_currency
             console.log(eventData.trans_id);
             console.log(eventData.trans_currency);
           }
-                const eventData = JSON.parse(event.data);
-                const eventElement = document.createElement("div");
-                console.log(eventData);
-              };
+          const eventData = JSON.parse(event.data);
+          const eventElement = document.createElement("div");
+          console.log(eventData);
+        };
 
-              eventSource.onerror = (error) => {
-                console.error("SSE error:", error);
-              };
-            }
+        eventSource.onerror = (error) => {
+          console.error("SSE error:", error);
+        };
+      }
     </script>
   </body>
 </html>

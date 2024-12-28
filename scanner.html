@@ -147,14 +147,15 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     ></script>
+    <script src="js/config.js" defer></script>
   </head>
   <body>
     <div class="container">
       <h1>Tele Electric Bike</h1>
       <button id="startScanBtn">Start Scan</button>
       <div id="reader"></div>
-      <div id="loading" class="circular-progress"></div>
       <div id="result" class="result"></div>
+      <div id="loading" class="circular-progress"></div>
       <div id="error" class="error"></div>
       <button id="restartBtn" style="display: none">Restart Scanner</button>
       <button id="permissionBtn">Request Camera Access</button>
@@ -171,9 +172,6 @@
       const stopScanBtn = document.getElementById("stopScanBtn");
       const readerDiv = document.getElementById("reader");
       const loadingDiv = document.getElementById("loading");
-      const urlParams = new URLSearchParams(window.location.search);
-      const imei = urlParams.get("imei");
-      const BASE_URL = "http://apps.cybertribs.com";
 
       function onScanSuccess(decodedText) {
         if (/^\d{10}$/.test(decodedText)) {
@@ -185,16 +183,17 @@
           stopScanner();
 
           const token = localStorage.getItem("token");
+          const payment_token = localStorage.getItem("payment_token");
           let headers = new Headers();
 
           headers.append("Content-Type", "application/json");
           headers.append("Accept", "application/json");
           headers.append("Authorization", `Bearer ${token}`);
 
-          fetch(BASE_URL + "/api/devices/checkBikeId", {
+          fetch(window.APP_CONFIG.BASE_URL + "/api/devices/checkBikeId", {
             method: "POST",
             headers: headers,
-            body: JSON.stringify({ bikeId: decodedText }),
+            body: JSON.stringify({ bikeId: decodedText, payment_token }),
             mode: "cors",
           })
             .then((response) => {
@@ -207,7 +206,7 @@
             })
             .then((data) => {
               console.log("Data is: ", data);
-              window.location.href = `ride.html?imei=${data.imei}&bikeId=${decodedText}`;
+              window.location.href = `pay.html?imei=${data.imei}&bikeId=${decodedText}`;
             })
             .catch((err) => {
               console.log(err);

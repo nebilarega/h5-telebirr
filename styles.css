@@ -47,3 +47,35 @@ body {
     opacity: 0;
   }
 }
+
+/* Success message container */
+.success-message {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.success-message h1 {
+  color: #4caf50;
+  font-size: 2rem;
+}
+
+.success-message p {
+  font-size: 1.2rem;
+  margin: 10px 0;
+}
+
+/* Start Ride button */
+.start-ride-btn {
+  background-color: #7dc11f; /* Match the loader color */
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.start-ride-btn:hover {
+  background-color: #6a9e18;
+}
