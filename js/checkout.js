@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
       headers.append("Authorization", `Bearer ${token}`);
 
       const response = await fetch(
-        `${window.APP_CONFIG.BASE_URL}/api/payment/check`,
+        `${window.APP_CONFIG.BASE_URL}/api/payment/checkPayment`,
         {
           method: "POST",
           headers: headers,
@@ -33,6 +33,8 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = "pay.html";
         return;
       }
+
+      console.log(response);
 
       if (!response.ok) {
         console.error("Error with payment check:", response.statusText);
@@ -53,7 +55,8 @@ document.addEventListener("DOMContentLoaded", () => {
         successMessage.innerHTML = `
           <h1>Payment Successful</h1>
           <p>Merchant Order ID: <strong>${data.merch_order_id}</strong></p>
-          <p>Ride bought: <strong>${data.total_amount} min</strong></p>
+          <p>Amount Paid: <strong>${data.total_amount} Birr payed</strong></p>
+          <p>Ride bought: <strong>${data.total_amount / 10} mins</strong></p>
         `;
 
         // Create the "Start Ride" button

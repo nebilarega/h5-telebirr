@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tele Electric Payment</title>
     <link rel="stylesheet" href="main.css" />
-    <script src="js/config.js" defer></script>
+    <script src="js/config.js"></script>
   </head>
   <body>
     <div class="container">
@@ -34,6 +34,7 @@
       const bikeImage = document.getElementById("bikeImage");
       const token = localStorage.getItem("token");
       const paymentToken = localStorage.getItem("payment_token");
+      const selectedDuration = localStorage.getItem("selectedDuration");
       let pollingInterval;
       let timerInterval;
       let eventSource;
@@ -68,7 +69,6 @@
                   lockBtn.disabled = false;
 
                   // Hide time buttons and show timer
-                  timeButtons.style.display = "none";
                   timerDiv.style.display = "block";
                   bikeImage.style.display = "block";
 
@@ -82,7 +82,6 @@
                   unlockBtn.disabled = false;
 
                   // Show time buttons and hide timer
-                  timeButtons.style.display = "flex";
                   timerDiv.style.display = "none";
                   bikeImage.style.display = "none";
                   resetTimer(); // Reset the timer when the bike is locked
@@ -163,8 +162,7 @@
         clearInterval(timerInterval);
         timerDiv.style.display = "none";
         bikeImage.style.display = "none";
-        timeButtons.style.display = "flex"; // Show time buttons again
-        priceDiv.textContent = "Price: 0 Birr";
+        <!-- priceDiv.textContent = "Price: 0 Birr"; -->
         unlockBtn.disabled = true;
         selectedDuration = null;
         const buttons = document.querySelectorAll(".radio-buttons button");

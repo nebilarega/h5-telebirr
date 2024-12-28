@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tele Electric Bike</title>
     <link rel="stylesheet" href="main.css" />
-    <script src="js/config.js" defer></script>
+    <script src="js/config.js"></script>
   </head>
   <body>
     <div class="container">
@@ -97,6 +97,7 @@
                   localStorage.setItem("merch_order_id", merchOrderId);
                   localStorage.setItem("imei", imei);
                   localStorage.setItem("bikeId", bikeId);
+                  localStorage.setItem("selectedDuration", selectedDuration);
                   console.log("Extracted merch_order_id:", merchOrderId);
                 } else {
                   console.error(
@@ -113,14 +114,6 @@
                     functionCallBackName: "handleinitDataCallback",
                   },
                 });
-                <!-- if (
-                  window.consumerapp === undefined ||
-                  window.consumerapp === null
-                ) {
-                  console.log("This is not opened in app!");
-                  return;
-                }
-                window.consumerapp.evaluate(obj); -->
               })
               .catch((error) => {
                 console.log("error occur", error);
